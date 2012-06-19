@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use File::Spec;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub new {
   my ($class, $file) = @_;
@@ -77,7 +77,7 @@ sub extract {
   my ($self, $file, $dir) = @_;
   my $tar = Archive::Tar->new;
   my $fh;
-  if ($file =~ /\.tgz$/) {
+  if ($file =~ /\.(tgz|tar\.gz)$/) {
     require IO::Zlib;
     $fh = IO::Zlib->new($file, "rb") or do { warn "$file: $!"; return };
   }
