@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use File::Spec;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 sub new {
   my ($class, $file) = @_;
@@ -94,10 +94,15 @@ sub extract {
   # Note also that $file can't hold the last error.
   local $Archive::Tar::WARN;
   my %errors;
+  my $has_extracted;
   until (eof $fh) {
     my @files = $tar->read($fh, undef, {limit => 1});
     if (my $error = $tar->error) {
       warn $error unless $errors{$error}++;
+    }
+    if (!@files && !$has_extracted) {
+      warn "No data could be read from $file";
+      return;
     }
     for my $file (@files) {
       my $path = File::Spec->catfile((defined $dir ? $dir : "."), $file->prefix, $file->name);
@@ -107,6 +112,7 @@ sub extract {
         }
       };
     }
+    $has_extracted += @files;
   }
   return if %errors;
   return 1;
