@@ -25,4 +25,4 @@ requires:
   IO::Zlib: 0
   Test::More: 0.47
   Test::UseAllModules: 0.10
-version: 0.04
+version: 0.05
