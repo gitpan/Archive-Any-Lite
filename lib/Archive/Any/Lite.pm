@@ -4,11 +4,11 @@ use strict;
 use warnings;
 use File::Spec;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 our $IGNORE_SYMLINK;
 
 sub new {
-  my ($class, $file) = @_;
+  my ($class, $file, $opts) = @_;
 
   $file = File::Spec->rel2abs($file);
   unless (-f $file) {
@@ -16,13 +16,16 @@ sub new {
     return;
   }
 
+  # just for undocumented backward compat
+  my $type = !ref $opts ? $opts : '';
+
   # XXX: trust file extensions until I manage to make File::MMagic
   #      more reliable while fork()ing or I happen to find a decent
   #      and portable alternative to File::MMagic.
 
   my $handler =
-    $file =~ /\.(?:tar|tar\.(?:gz|bz2)|gtar|tgz)$/ ? 'Archive::Any::Lite::Tar' :
-    $file =~ /\.(?:zip)$/ ? 'Archive::Any::Lite::Zip' : undef;
+    ($type && lc $type eq 'tar') || $file =~ /\.(?:tar|tar\.(?:gz|bz2)|gtar|tgz)$/ ? 'Archive::Any::Lite::Tar' :
+    ($type && lc $type eq 'zip') || $file =~ /\.(?:zip)$/ ? 'Archive::Any::Lite::Zip' : undef;
   unless ($handler) {
     warn "No handler available for $file\n";
     return;
@@ -31,13 +34,14 @@ sub new {
   bless {
     file    => $file,
     handler => $handler,
+    opts    => ref $opts ? $opts : undef,
   }, $class;
 }
 
 sub extract {
-  my ($self, $dir) = @_;
+  my ($self, $dir, $opts) = @_;
 
-  $self->{handler}->extract($self->{file}, $dir);
+  $self->{handler}->extract($self->{file}, $dir, $opts || $self->{opts});
 }
 
 sub files {
@@ -75,7 +79,7 @@ sub files {
 }
 
 sub extract {
-  my ($self, $file, $dir) = @_;
+  my ($self, $file, $dir, $opts) = @_;
   $dir = '.' unless defined $dir;
   my $tar = Archive::Tar->new;
   my $fh;
@@ -97,8 +101,19 @@ sub extract {
   local $Archive::Tar::WARN;
   my %errors;
   my $has_extracted;
+  my %read_opts = (limit => 1);
+  if ($opts) {
+    for (qw/limit md5 filter filter_cb extract/) {
+      if (exists $opts->{"tar_$_"}) {
+        $read_opts{$_} = $opts->{"tar_$_"};
+      }
+      elsif (exists $opts->{$_}) {
+        $read_opts{$_} = $opts->{$_};
+      }
+    }
+  }
   until (eof $fh) {
-    my @files = $tar->read($fh, undef, {limit => 1});
+    my @files = $tar->read($fh, undef, \%read_opts);
     if (my $error = $tar->error) {
       warn $error unless $errors{$error}++;
     }
@@ -133,7 +148,7 @@ sub files {
 }
 
 sub extract {
-  my ($self, $file, $dir) = @_;
+  my ($self, $file, $dir, $opts) = @_;
   my $zip = Archive::Zip->new($file) or return;
   $dir = '.' unless defined $dir;
   my $error = 0;
@@ -177,16 +192,21 @@ This is a fork of L<Archive::Any> by Michael Schwern and Clint Moore. The main d
 
 =head2 new
 
-  my $archive = Archive::Any->new($archive_file);
+  my $archive = Archive::Any::Lite->new($archive_file);
+  my $archive = Archive::Any::Lite->new($archive_file, {tar_filter => qr/foo/});
 
 Creates an object.
+You can pass an optional hash reference for finer control.
 
 =head2 extract
 
   $archive->extract;
   $archive->extract($directory);
+  $archive->extract($directory, {tar_filter => qr/foo/});
 
 Extracts the files in the archive to the given $directory. If no $directory is given, it will go into the current working directory.
+
+You can pass an optional hash reference for finer control. If passed, options passed in C<new> will be ignored.
 
 =head2 files
 

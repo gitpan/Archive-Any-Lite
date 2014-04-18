@@ -1,10 +1,10 @@
 {
-   "abstract" : "simple CPAN package extractor\r",
+   "abstract" : "simple CPAN package extractor",
    "author" : [
       "Kenichi Ishigaki <ishigaki@cpan.org>"
    ],
-   "dynamic_config" : 1,
-   "generated_by" : "ExtUtils::MakeMaker version 6.62, CPAN::Meta::Converter version 2.112150",
+   "dynamic_config" : 0,
+   "generated_by" : "ExtUtils::MakeMaker version 6.76, CPAN::Meta::Converter version 2.140640",
    "license" : [
       "perl_5"
    ],
@@ -22,26 +22,31 @@
    "prereqs" : {
       "build" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : 0
+            "ExtUtils::MakeMaker" : "0",
+            "Test::More" : "0.47",
+            "Test::UseAllModules" : "0.10"
          }
       },
       "configure" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : 0
+            "ExtUtils::MakeMaker::CPANfile" : "0.06"
          }
       },
       "runtime" : {
          "requires" : {
-            "Archive::Tar" : 0,
-            "Archive::Zip" : 0,
-            "File::Spec" : 0,
-            "IO::Uncompress::Bunzip2" : 0,
-            "IO::Zlib" : 0,
-            "Test::More" : "0.47",
-            "Test::UseAllModules" : "0.10"
+            "Archive::Tar" : "1.76",
+            "Archive::Zip" : "0",
+            "File::Spec" : "0",
+            "IO::Uncompress::Bunzip2" : "0",
+            "IO::Zlib" : "0"
          }
       }
    },
    "release_status" : "stable",
-   "version" : "0.07"
+   "resources" : {
+      "repository" : {
+         "url" : "https://github.com/charsbar/archive-any-lite"
+      }
+   },
+   "version" : "0.08"
 }
