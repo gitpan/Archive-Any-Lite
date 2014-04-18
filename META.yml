@@ -4,7 +4,7 @@ author:
   - 'Kenichi Ishigaki <ishigaki@cpan.org>'
 build_requires:
   ExtUtils::MakeMaker: '0'
-  Test::More: '0.47'
+  Test::More: '0.82'
   Test::UseAllModules: '0.10'
 configure_requires:
   ExtUtils::MakeMaker::CPANfile: '0.06'
@@ -23,8 +23,9 @@ requires:
   Archive::Tar: '1.76'
   Archive::Zip: '0'
   File::Spec: '0'
+  File::Temp: '0.19'
   IO::Uncompress::Bunzip2: '0'
   IO::Zlib: '0'
 resources:
   repository: https://github.com/charsbar/archive-any-lite
-version: '0.08'
+version: '0.09'
